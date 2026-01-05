@@ -83,11 +83,11 @@ async def get_top5_cedears(
         logger.info("Obteniendo precios en ARS...")
         ars_prices = market_data_service.get_cedear_prices_ars(tickers)
         
-        # 3. Obtener Top 5
-        logger.info("Calculando Top 5...")
+        # 3. Obtener Top 6
+        logger.info("Calculando Top 6...")
         top5 = scoring_service.get_top_n(
             indicators, 
-            n=5, 
+            n=6, 
             include_breakdown=include_breakdown,
             ars_prices=ars_prices
         )

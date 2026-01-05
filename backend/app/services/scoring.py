@@ -126,7 +126,7 @@ class ScoringService:
         self, 
         indicators: StockIndicators,
         include_breakdown: bool = True,
-        ars_data: Dict = None
+        ars_data: Dict = None # type: ignore
     ) -> CEDEARScore:
         """
         Crea el objeto CEDEARScore completo para una acción.
