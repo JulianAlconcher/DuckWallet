@@ -31,13 +31,15 @@ class CEDEARScore(BaseModel):
     cedear: str = Field(..., description="Símbolo del CEDEAR (igual al subyacente)")
     company: str = Field(..., description="Nombre de la empresa")
     score: int = Field(..., ge=0, le=10, description="Puntaje técnico (0-10)")
-    daily_change_pct: float = Field(..., description="Variación porcentual diaria")
+    daily_change_pct: float = Field(..., description="Variación porcentual diaria (subyacente)")
     volume_ratio: float = Field(..., description="Ratio de volumen")
     rsi: float = Field(..., description="RSI actual")
     trend: Literal["bullish", "bearish", "neutral"] = Field(..., description="Tendencia")
-    current_price: float = Field(..., description="Precio actual USD")
+    current_price: float = Field(..., description="Precio acción subyacente USD")
     price_ars: Optional[float] = Field(None, description="Precio CEDEAR en ARS")
     daily_change_pct_ars: Optional[float] = Field(None, description="Variación porcentual diaria en ARS")
+    price_usd: Optional[float] = Field(None, description="Precio CEDEAR en USD (dólar MEP)")
+    daily_change_pct_usd: Optional[float] = Field(None, description="Variación porcentual diaria en USD")
     
     # Detalle del scoring (opcional, para transparencia)
     score_breakdown: Optional[dict] = Field(

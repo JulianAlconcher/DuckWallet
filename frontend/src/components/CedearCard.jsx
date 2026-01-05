@@ -15,14 +15,20 @@ export default function CedearCard({ cedear, rank, currency = 'ARS' }) {
     current_price,
     price_ars,
     daily_change_pct_ars,
+    price_usd,
+    daily_change_pct_usd,
     score_breakdown,
   } = cedear;
 
   // Determinar qué precio y variación mostrar según la moneda
-  const displayPrice = currency === 'ARS' && price_ars ? price_ars : current_price;
-  const displayChange = currency === 'ARS' && daily_change_pct_ars !== null ? daily_change_pct_ars : daily_change_pct;
+  const displayPrice = currency === 'ARS' 
+    ? (price_ars || current_price) 
+    : (price_usd || current_price);
+  const displayChange = currency === 'ARS' 
+    ? (daily_change_pct_ars ?? daily_change_pct) 
+    : (daily_change_pct_usd ?? daily_change_pct);
   const currencySymbol = currency === 'ARS' ? '$' : 'US$';
-  const priceLabel = currency === 'ARS' ? 'Precio CEDEAR (ARS)' : 'Precio (USD)';
+  const priceLabel = currency === 'ARS' ? 'Precio CEDEAR (ARS)' : 'Precio CEDEAR (USD)';
 
   // Formatear precio según moneda
   const formatPrice = (price) => {
