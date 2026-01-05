@@ -79,12 +79,17 @@ async def get_top5_cedears(
                 detail="Error calculando indicadores técnicos"
             )
         
+        # 2.5. Obtener precios en ARS de CEDEARs
+        logger.info("Obteniendo precios en ARS...")
+        ars_prices = market_data_service.get_cedear_prices_ars(tickers)
+        
         # 3. Obtener Top 5
         logger.info("Calculando Top 5...")
         top5 = scoring_service.get_top_n(
             indicators, 
             n=5, 
-            include_breakdown=include_breakdown
+            include_breakdown=include_breakdown,
+            ars_prices=ars_prices
         )
         
         return Top5Response(
@@ -129,10 +134,14 @@ async def get_all_cedears(
         # Calcular indicadores
         indicators = technical_analysis_service.analyze_multiple_stocks(stocks_data)
         
+        # Obtener precios en ARS
+        ars_prices = market_data_service.get_cedear_prices_ars(tickers)
+        
         # Rankear todos
         all_cedears = scoring_service.rank_cedears(
             indicators, 
-            include_breakdown=include_breakdown
+            include_breakdown=include_breakdown,
+            ars_prices=ars_prices
         )
         
         return AllCEDEARSResponse(

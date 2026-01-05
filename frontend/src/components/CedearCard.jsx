@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 /**
  * Componente para mostrar una tarjeta de CEDEAR.
  */
-export default function CedearCard({ cedear, rank }) {
+export default function CedearCard({ cedear, rank, currency = 'ARS' }) {
   const {
     cedear: ticker,
     company,
@@ -13,8 +13,24 @@ export default function CedearCard({ cedear, rank }) {
     rsi,
     trend,
     current_price,
+    price_ars,
+    daily_change_pct_ars,
     score_breakdown,
   } = cedear;
+
+  // Determinar qué precio y variación mostrar según la moneda
+  const displayPrice = currency === 'ARS' && price_ars ? price_ars : current_price;
+  const displayChange = currency === 'ARS' && daily_change_pct_ars !== null ? daily_change_pct_ars : daily_change_pct;
+  const currencySymbol = currency === 'ARS' ? '$' : 'US$';
+  const priceLabel = currency === 'ARS' ? 'Precio CEDEAR (ARS)' : 'Precio (USD)';
+
+  // Formatear precio según moneda
+  const formatPrice = (price) => {
+    if (currency === 'ARS') {
+      return price.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+    return price.toFixed(2);
+  };
 
   // Determinar color del score
   const getScoreColor = (score) => {
@@ -83,11 +99,14 @@ export default function CedearCard({ cedear, rank }) {
 
       {/* Precio actual */}
       <div className="mb-4 pb-4 border-b border-slate-700">
-        <p className="text-sm text-slate-400 mb-1">Precio (USD)</p>
+        <p className="text-sm text-slate-400 mb-1">{priceLabel}</p>
         <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-bold text-white">${current_price.toFixed(2)}</span>
-          {formatChange(daily_change_pct)}
+          <span className="text-2xl font-bold text-white">{currencySymbol}{formatPrice(displayPrice)}</span>
+          {formatChange(displayChange)}
         </div>
+        {currency === 'ARS' && !price_ars && (
+          <p className="text-xs text-slate-500 mt-1">Precio ARS no disponible</p>
+        )}
       </div>
 
       {/* Indicadores */}

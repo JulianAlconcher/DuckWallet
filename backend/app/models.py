@@ -36,6 +36,8 @@ class CEDEARScore(BaseModel):
     rsi: float = Field(..., description="RSI actual")
     trend: Literal["bullish", "bearish", "neutral"] = Field(..., description="Tendencia")
     current_price: float = Field(..., description="Precio actual USD")
+    price_ars: Optional[float] = Field(None, description="Precio CEDEAR en ARS")
+    daily_change_pct_ars: Optional[float] = Field(None, description="Variación porcentual diaria en ARS")
     
     # Detalle del scoring (opcional, para transparencia)
     score_breakdown: Optional[dict] = Field(

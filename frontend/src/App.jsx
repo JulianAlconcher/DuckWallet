@@ -10,6 +10,7 @@ function App() {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currency, setCurrency] = useState('ARS'); // Por defecto ARS
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -46,7 +47,9 @@ function App() {
         <Header 
           date={data?.date} 
           onRefresh={fetchData} 
-          isLoading={isLoading} 
+          isLoading={isLoading}
+          currency={currency}
+          onCurrencyChange={setCurrency}
         />
 
         {/* Estado de carga */}
@@ -88,7 +91,8 @@ function App() {
                 <CedearCard 
                   key={cedear.cedear} 
                   cedear={cedear} 
-                  rank={index + 1} 
+                  rank={index + 1}
+                  currency={currency}
                 />
               ))}
             </div>

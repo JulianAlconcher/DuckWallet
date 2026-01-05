@@ -125,7 +125,8 @@ class ScoringService:
     def create_cedear_score(
         self, 
         indicators: StockIndicators,
-        include_breakdown: bool = True
+        include_breakdown: bool = True,
+        ars_data: Dict = None
     ) -> CEDEARScore:
         """
         Crea el objeto CEDEARScore completo para una acción.
@@ -133,6 +134,7 @@ class ScoringService:
         Args:
             indicators: Indicadores técnicos
             include_breakdown: Si incluir el desglose del puntaje
+            ars_data: Datos de precio en ARS {"price_ars": float, "daily_change_pct_ars": float}
             
         Returns:
             CEDEARScore con toda la información
@@ -155,13 +157,16 @@ class ScoringService:
             rsi=indicators.rsi,
             trend=indicators.trend,
             current_price=indicators.current_price,
+            price_ars=ars_data.get("price_ars") if ars_data else None,
+            daily_change_pct_ars=ars_data.get("daily_change_pct_ars") if ars_data else None,
             score_breakdown=scoring_result["breakdown"] if include_breakdown else None
         )
     
     def rank_cedears(
         self, 
         indicators_dict: Dict[str, StockIndicators],
-        include_breakdown: bool = False
+        include_breakdown: bool = False,
+        ars_prices: Dict = None
     ) -> List[CEDEARScore]:
         """
         Rankea todos los CEDEARs por score técnico.
@@ -169,6 +174,7 @@ class ScoringService:
         Args:
             indicators_dict: Diccionario {ticker: StockIndicators}
             include_breakdown: Si incluir el desglose del puntaje
+            ars_prices: Diccionario {ticker: {"price_ars": float, "daily_change_pct_ars": float}}
             
         Returns:
             Lista de CEDEARScore ordenada de mayor a menor score
@@ -178,9 +184,11 @@ class ScoringService:
         for ticker, indicators in indicators_dict.items():
             # Solo incluir tickers que están en el universo de CEDEARs
             if ticker in self.universe:
+                ars_data = ars_prices.get(ticker) if ars_prices else None
                 cedear_score = self.create_cedear_score(
                     indicators, 
-                    include_breakdown=include_breakdown
+                    include_breakdown=include_breakdown,
+                    ars_data=ars_data
                 )
                 scored_cedears.append(cedear_score)
             else:
@@ -199,7 +207,8 @@ class ScoringService:
         self, 
         indicators_dict: Dict[str, StockIndicators],
         n: int = 5,
-        include_breakdown: bool = True
+        include_breakdown: bool = True,
+        ars_prices: Dict = None
     ) -> List[CEDEARScore]:
         """
         Obtiene los top N CEDEARs por score técnico.
@@ -208,11 +217,12 @@ class ScoringService:
             indicators_dict: Diccionario {ticker: StockIndicators}
             n: Número de CEDEARs a retornar
             include_breakdown: Si incluir el desglose del puntaje
+            ars_prices: Diccionario {ticker: {"price_ars": float, "daily_change_pct_ars": float}}
             
         Returns:
             Lista de los top N CEDEARScore
         """
-        all_ranked = self.rank_cedears(indicators_dict, include_breakdown)
+        all_ranked = self.rank_cedears(indicators_dict, include_breakdown, ars_prices)
         return all_ranked[:n]
 
 

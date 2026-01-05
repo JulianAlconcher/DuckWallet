@@ -158,5 +158,69 @@ class MarketDataService:
             return None
 
 
+    def get_cedear_prices_ars(
+        self, 
+        tickers: List[str]
+    ) -> Dict[str, Dict]:
+        """
+        Obtiene los precios de CEDEARs en ARS (BYMA) usando sufijo .BA
+        
+        Args:
+            tickers: Lista de tickers de acciones subyacentes
+            
+        Returns:
+            Diccionario {ticker: {"price_ars": float, "daily_change_pct_ars": float}}
+        """
+        result = {}
+        cedear_tickers = [f"{t}.BA" for t in tickers]
+        tickers_str = " ".join(cedear_tickers)
+        
+        logger.info(f"Obteniendo precios ARS de CEDEARs...")
+        
+        try:
+            # Descargar datos de CEDEARs
+            data = yf.download(
+                tickers_str,
+                period="5d",
+                group_by='ticker',
+                progress=False,
+                threads=True
+            )
+            
+            if len(cedear_tickers) == 1:
+                ticker_ba = cedear_tickers[0]
+                ticker_orig = tickers[0]
+                if not data.empty and len(data) >= 2:
+                    current_price = float(data['Close'].iloc[-1])
+                    prev_price = float(data['Close'].iloc[-2])
+                    daily_change = ((current_price - prev_price) / prev_price) * 100
+                    result[ticker_orig] = {
+                        "price_ars": current_price,
+                        "daily_change_pct_ars": daily_change
+                    }
+            else:
+                for i, ticker_ba in enumerate(cedear_tickers):
+                    ticker_orig = tickers[i]
+                    try:
+                        if ticker_ba in data.columns.get_level_values(0):
+                            ticker_data = data[ticker_ba]['Close'].dropna()
+                            if len(ticker_data) >= 2:
+                                current_price = float(ticker_data.iloc[-1])
+                                prev_price = float(ticker_data.iloc[-2])
+                                daily_change = ((current_price - prev_price) / prev_price) * 100
+                                result[ticker_orig] = {
+                                    "price_ars": current_price,
+                                    "daily_change_pct_ars": daily_change
+                                }
+                    except Exception as e:
+                        logger.warning(f"Error procesando {ticker_ba}: {str(e)}")
+                        
+        except Exception as e:
+            logger.error(f"Error obteniendo precios ARS: {str(e)}")
+        
+        logger.info(f"Precios ARS obtenidos para {len(result)}/{len(tickers)} CEDEARs")
+        return result
+
+
 # Instancia global del servicio
 market_data_service = MarketDataService()

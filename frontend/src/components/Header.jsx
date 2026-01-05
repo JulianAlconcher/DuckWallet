@@ -3,7 +3,7 @@ import { BarChart3, RefreshCw } from 'lucide-react';
 /**
  * Header de la aplicación.
  */
-export default function Header({ date, onRefresh, isLoading }) {
+export default function Header({ date, onRefresh, isLoading, currency, onCurrencyChange }) {
   return (
     <header className="mb-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -26,8 +26,32 @@ export default function Header({ date, onRefresh, isLoading }) {
 
         {/* Acciones */}
         <div className="flex items-center gap-4">
+          {/* Toggle USD/ARS */}
+          <div className="flex items-center bg-slate-700 rounded-lg p-1">
+            <button
+              onClick={() => onCurrencyChange('ARS')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                currency === 'ARS'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              ARS
+            </button>
+            <button
+              onClick={() => onCurrencyChange('USD')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                currency === 'USD'
+                  ? 'bg-primary-500 text-white'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              USD
+            </button>
+          </div>
+
           {date && (
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-slate-400 hidden md:block">
               Actualizado: {new Date(date).toLocaleDateString('es-AR', {
                 weekday: 'long',
                 year: 'numeric',
