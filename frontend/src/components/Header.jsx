@@ -1,4 +1,4 @@
-import { BarChart3, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 /**
  * Header de la aplicación.
@@ -9,8 +9,8 @@ export default function Header({ date, onRefresh, isLoading, currency, onCurrenc
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
           {/* Logo */}
-          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl shadow-lg">
-            <BarChart3 className="w-7 h-7 text-white" />
+          <div className="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg overflow-hidden">
+            <img src="/duck.svg" alt="DuckWallet" className="w-12 h-12" />
           </div>
           
           {/* Título */}
@@ -19,7 +19,7 @@ export default function Header({ date, onRefresh, isLoading, currency, onCurrenc
               DuckWallet Screener
             </h1>
             <p className="text-slate-400 text-sm">
-              Top 5 con mayor fortaleza técnica
+              Top 6 con mayor fortaleza técnica
             </p>
           </div>
         </div>
