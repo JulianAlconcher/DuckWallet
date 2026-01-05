@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 /**
  * Componente para mostrar una tarjeta de CEDEAR.
  */
-export default function CedearCard({ cedear, rank, currency = 'ARS' }) {
+export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 'momentum' }) {
   const {
     cedear: ticker,
     company,
@@ -80,6 +80,69 @@ export default function CedearCard({ cedear, rank, currency = 'ARS' }) {
     return <span className={colorClass}>{sign}{change.toFixed(2)}%</span>;
   };
 
+  // Renderizar indicadores según estrategia
+  const renderIndicators = () => {
+    if (strategy === 'value') {
+      // Para Value: P/E, Div Yield, ROE (almacenados en campos reutilizados)
+      const pe = rsi; // P/E está en el campo rsi
+      const divYield = daily_change_pct; // Div Yield está en daily_change_pct
+      
+      return (
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <p className="text-xs text-slate-400 mb-1">P/E Ratio</p>
+            <p className={`text-lg font-semibold ${
+              pe < 15 ? 'text-success-400' : pe < 25 ? 'text-yellow-400' : 'text-slate-300'
+            }`}>
+              {pe > 0 ? pe.toFixed(1) : 'N/A'}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 mb-1">Dividendo</p>
+            <p className={`text-lg font-semibold ${
+              divYield >= 2 ? 'text-success-400' : 'text-slate-300'
+            }`}>
+              {divYield > 0 ? `${divYield.toFixed(1)}%` : 'N/A'}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 mb-1">Tipo</p>
+            <span className="badge-neutral flex items-center gap-1">
+              <Minus size={12} />
+              Value
+            </span>
+          </div>
+        </div>
+      );
+    }
+    
+    // Para Momentum (default)
+    return (
+      <div className="grid grid-cols-3 gap-4 mb-4">
+        <div>
+          <p className="text-xs text-slate-400 mb-1">RSI (14)</p>
+          <p className={`text-lg font-semibold ${
+            rsi >= 50 && rsi <= 70 ? 'text-success-400' : 'text-slate-300'
+          }`}>
+            {rsi.toFixed(1)}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-slate-400 mb-1">Vol. Ratio</p>
+          <p className={`text-lg font-semibold ${
+            volume_ratio > 1 ? 'text-success-400' : 'text-slate-300'
+          }`}>
+            {volume_ratio.toFixed(2)}x
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-slate-400 mb-1">Tendencia</p>
+          {getTrendBadge(trend)}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="card-hover p-5">
       {/* Header */}
@@ -108,36 +171,15 @@ export default function CedearCard({ cedear, rank, currency = 'ARS' }) {
         <p className="text-sm text-slate-400 mb-1">{priceLabel}</p>
         <div className="flex items-baseline gap-2">
           <span className="text-2xl font-bold text-white">{currencySymbol}{formatPrice(displayPrice)}</span>
-          {formatChange(displayChange)}
+          {strategy === 'momentum' && formatChange(displayChange)}
         </div>
         {currency === 'ARS' && !price_ars && (
           <p className="text-xs text-slate-500 mt-1">Precio ARS no disponible</p>
         )}
       </div>
 
-      {/* Indicadores */}
-      <div className="grid grid-cols-3 gap-4 mb-4">
-        <div>
-          <p className="text-xs text-slate-400 mb-1">RSI (14)</p>
-          <p className={`text-lg font-semibold ${
-            rsi >= 50 && rsi <= 70 ? 'text-success-400' : 'text-slate-300'
-          }`}>
-            {rsi.toFixed(1)}
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-slate-400 mb-1">Vol. Ratio</p>
-          <p className={`text-lg font-semibold ${
-            volume_ratio > 1 ? 'text-success-400' : 'text-slate-300'
-          }`}>
-            {volume_ratio.toFixed(2)}x
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-slate-400 mb-1">Tendencia</p>
-          {getTrendBadge(trend)}
-        </div>
-      </div>
+      {/* Indicadores según estrategia */}
+      {renderIndicators()}
 
       {/* Score Breakdown (si está disponible) */}
       {score_breakdown && (

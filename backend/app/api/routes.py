@@ -4,6 +4,7 @@ Endpoints de la API del CEDEAR Screener.
 
 from fastapi import APIRouter, HTTPException, Query
 from datetime import date
+from typing import Literal
 import logging
 
 from ..models import Top5Response, HealthResponse, AllCEDEARSResponse
@@ -11,6 +12,8 @@ from ..config import settings, CEDEAR_UNIVERSE
 from ..services.market_data import market_data_service
 from ..services.technical_analysis import technical_analysis_service
 from ..services.scoring import scoring_service
+from ..services.fundamental_data import fundamental_data_service
+from ..services.value_scoring import value_scoring_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -39,60 +42,91 @@ async def get_top5_cedears(
     include_breakdown: bool = Query(
         True, 
         description="Incluir desglose del puntaje"
+    ),
+    strategy: Literal["momentum", "value"] = Query(
+        "momentum",
+        description="Estrategia de análisis: momentum (técnico) o value (fundamentales)"
     )
 ):
     """
-    Obtiene el Top 5 de CEDEARs con mayor fortaleza técnica.
+    Obtiene el Top 6 de CEDEARs según la estrategia seleccionada.
     
-    El análisis se basa en indicadores técnicos de las acciones subyacentes
-    que cotizan en NASDAQ/NYSE. Los CEDEARs se ordenan según un sistema
-    de scoring transparente basado en:
+    **Estrategias disponibles:**
     
-    - Variación porcentual diaria
-    - Volumen relativo al promedio
-    - RSI (Relative Strength Index)
-    - Posición respecto a la SMA de 20 períodos
-    - Tendencia reciente
+    - **momentum**: Análisis técnico (variación diaria, volumen, RSI, SMA, tendencia)
+    - **value**: Análisis fundamental (P/E, P/B, dividendos, ROE, deuda)
     
     **Nota**: Este análisis es informativo y no constituye 
     recomendación de inversión.
     """
     try:
-        # 1. Obtener datos de mercado
-        logger.info("Obteniendo datos de mercado...")
         tickers = list(CEDEAR_UNIVERSE.keys())
-        stocks_data = market_data_service.get_all_stocks_data(tickers)
         
-        if not stocks_data:
-            raise HTTPException(
-                status_code=503,
-                detail="No se pudieron obtener datos de mercado"
-            )
-        
-        # 2. Calcular indicadores técnicos
-        logger.info("Calculando indicadores técnicos...")
-        indicators = technical_analysis_service.analyze_multiple_stocks(stocks_data)
-        
-        if not indicators:
-            raise HTTPException(
-                status_code=503,
-                detail="Error calculando indicadores técnicos"
-            )
-        
-        # 2.5. Obtener precios en ARS y USD de CEDEARs
+        # Obtener precios en ARS y USD de CEDEARs
         logger.info("Obteniendo precios en ARS y USD...")
         ars_prices = market_data_service.get_cedear_prices_ars(tickers)
         usd_prices = market_data_service.get_cedear_prices_usd(tickers)
         
-        # 3. Obtener Top 6
-        logger.info("Calculando Top 6...")
-        top5 = scoring_service.get_top_n(
-            indicators, 
-            n=6, 
-            include_breakdown=include_breakdown,
-            ars_prices=ars_prices,
-            usd_prices=usd_prices
-        )
+        if strategy == "momentum":
+            # === ESTRATEGIA MOMENTUM (técnica) ===
+            logger.info("Ejecutando estrategia MOMENTUM...")
+            
+            # 1. Obtener datos de mercado
+            stocks_data = market_data_service.get_all_stocks_data(tickers)
+            
+            if not stocks_data:
+                raise HTTPException(
+                    status_code=503,
+                    detail="No se pudieron obtener datos de mercado"
+                )
+            
+            # 2. Calcular indicadores técnicos
+            indicators = technical_analysis_service.analyze_multiple_stocks(stocks_data)
+            
+            if not indicators:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Error calculando indicadores técnicos"
+                )
+            
+            # 3. Obtener Top 6
+            top5 = scoring_service.get_top_n(
+                indicators, 
+                n=6, 
+                include_breakdown=include_breakdown,
+                ars_prices=ars_prices,
+                usd_prices=usd_prices
+            )
+        
+        elif strategy == "value":
+            # === ESTRATEGIA VALUE (fundamental) ===
+            logger.info("Ejecutando estrategia VALUE...")
+            
+            # 1. Obtener datos fundamentales
+            fundamentals = fundamental_data_service.get_all_fundamentals(tickers)
+            
+            if not fundamentals:
+                raise HTTPException(
+                    status_code=503,
+                    detail="No se pudieron obtener datos fundamentales"
+                )
+            
+            # 2. Obtener precios actuales para mostrar
+            stocks_data = market_data_service.get_all_stocks_data(tickers)
+            prices_dict = {}
+            for ticker, data in stocks_data.items():
+                if not data.empty:
+                    prices_dict[ticker] = float(data['Close'].iloc[-1])
+            
+            # 3. Obtener Top 6 por Value
+            top5 = value_scoring_service.get_top_n(
+                fundamentals,
+                prices_dict,
+                n=6, 
+                include_breakdown=include_breakdown,
+                ars_prices=ars_prices,
+                usd_prices=usd_prices
+            )
         
         return Top5Response(
             date=date.today().isoformat(),

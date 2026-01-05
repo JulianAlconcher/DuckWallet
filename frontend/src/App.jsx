@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getTop5Cedears } from './services/api';
 import CedearCard from './components/CedearCard';
 import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 import Disclaimer from './components/Disclaimer';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorMessage from './components/ErrorMessage';
@@ -11,13 +12,15 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currency, setCurrency] = useState('ARS'); // Por defecto ARS
+  const [strategy, setStrategy] = useState('momentum'); // Estrategia seleccionada
+  const [sidebarOpen, setSidebarOpen] = useState(true); // Sidebar visible
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const result = await getTop5Cedears(true);
+      const result = await getTop5Cedears(true, strategy);
       setData(result);
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -28,29 +31,40 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [strategy]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
-      {/* Background decorativo */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 -left-40 w-80 h-80 bg-primary-600/10 rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 flex">
+      {/* Sidebar */}
+      {sidebarOpen && (
+        <Sidebar 
+          selectedStrategy={strategy} 
+          onStrategyChange={setStrategy} 
+        />
+      )}
 
       {/* Contenido principal */}
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
-        <Header 
-          date={data?.date} 
-          onRefresh={fetchData} 
-          isLoading={isLoading}
-          currency={currency}
-          onCurrencyChange={setCurrency}
-        />
+      <div className="flex-1 relative">
+        {/* Background decorativo */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 -left-40 w-80 h-80 bg-primary-600/10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
+          <Header 
+            date={data?.date} 
+            onRefresh={fetchData} 
+            isLoading={isLoading}
+            currency={currency}
+            onCurrencyChange={setCurrency}
+            sidebarOpen={sidebarOpen}
+            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          />
 
         {/* Estado de carga */}
         {isLoading && (
@@ -93,6 +107,7 @@ function App() {
                   cedear={cedear} 
                   rank={index + 1}
                   currency={currency}
+                  strategy={strategy}
                 />
               ))}
             </div>
@@ -111,6 +126,7 @@ function App() {
             Análisis basado en acciones subyacentes (NASDAQ/NYSE) en USD
           </p>
         </footer>
+        </div>
       </div>
     </div>
   );

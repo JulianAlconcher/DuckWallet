@@ -10,16 +10,21 @@ const apiClient = axios.create({
 });
 
 /**
- * Obtiene el Top 5 de CEDEARs con mayor fortaleza técnica.
+ * Obtiene el Top 6 de CEDEARs según la estrategia seleccionada.
+ * @param {boolean} includeBreakdown - Incluir desglose del puntaje
+ * @param {string} strategy - Estrategia: 'momentum' o 'value'
  */
-export const getTop5Cedears = async (includeBreakdown = true) => {
+export const getTop5Cedears = async (includeBreakdown = true, strategy = 'momentum') => {
   try {
     const response = await apiClient.get('/top5-cedears', {
-      params: { include_breakdown: includeBreakdown },
+      params: { 
+        include_breakdown: includeBreakdown,
+        strategy: strategy
+      },
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching top 5 CEDEARs:', error);
+    console.error('Error fetching top CEDEARs:', error);
     throw error;
   }
 };

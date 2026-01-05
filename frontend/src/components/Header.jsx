@@ -1,13 +1,26 @@
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, PanelLeftClose, PanelLeft } from 'lucide-react';
 
 /**
  * Header de la aplicación.
  */
-export default function Header({ date, onRefresh, isLoading, currency, onCurrencyChange }) {
+export default function Header({ date, onRefresh, isLoading, currency, onCurrencyChange, sidebarOpen, onToggleSidebar }) {
   return (
     <header className="mb-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
+          {/* Botón toggle sidebar */}
+          <button
+            onClick={onToggleSidebar}
+            className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+            title={sidebarOpen ? 'Ocultar menú' : 'Mostrar menú'}
+          >
+            {sidebarOpen ? (
+              <PanelLeftClose className="w-5 h-5 text-slate-400" />
+            ) : (
+              <PanelLeft className="w-5 h-5 text-slate-400" />
+            )}
+          </button>
+
           {/* Logo */}
           <div className="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg overflow-hidden">
             <img src="/duck.svg" alt="DuckWallet" className="w-12 h-12" />
