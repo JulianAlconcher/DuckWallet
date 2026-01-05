@@ -49,8 +49,6 @@ function App() {
           isLoading={isLoading} 
         />
 
-        <Disclaimer text={data?.disclaimer} />
-
         {/* Estado de carga */}
         {isLoading && (
           <LoadingSpinner message="Analizando indicadores técnicos..." />
@@ -96,33 +94,7 @@ function App() {
             </div>
 
             {/* Metodología */}
-            <div className="mt-12 card p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">
-                📊 Metodología de Scoring
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
-                <div className="bg-slate-700/50 rounded-lg p-3">
-                  <p className="text-primary-400 font-medium">+3 puntos</p>
-                  <p className="text-slate-400">Variación diaria &gt; 2%</p>
-                </div>
-                <div className="bg-slate-700/50 rounded-lg p-3">
-                  <p className="text-primary-400 font-medium">+2 puntos</p>
-                  <p className="text-slate-400">Volumen &gt; promedio 30d</p>
-                </div>
-                <div className="bg-slate-700/50 rounded-lg p-3">
-                  <p className="text-primary-400 font-medium">+2 puntos</p>
-                  <p className="text-slate-400">RSI entre 50-70</p>
-                </div>
-                <div className="bg-slate-700/50 rounded-lg p-3">
-                  <p className="text-primary-400 font-medium">+2 puntos</p>
-                  <p className="text-slate-400">Precio &gt; SMA 20</p>
-                </div>
-                <div className="bg-slate-700/50 rounded-lg p-3">
-                  <p className="text-primary-400 font-medium">+1 punto</p>
-                  <p className="text-slate-400">Tendencia alcista</p>
-                </div>
-              </div>
-            </div>
+           
           </>
         )}
 
