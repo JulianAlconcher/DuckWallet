@@ -16,7 +16,7 @@ export default function Header({ date, onRefresh, isLoading }) {
           {/* Título */}
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-white">
-              CEDEAR Screener
+              DuckWallet Screener
             </h1>
             <p className="text-slate-400 text-sm">
               Top 5 con mayor fortaleza técnica

@@ -129,7 +129,7 @@ function App() {
         {/* Footer */}
         <footer className="mt-12 text-center text-slate-500 text-sm">
           <p>
-            CEDEAR Screener v1.0 • Datos de mercado via yfinance
+            DuckWallet Screener v1.0 • Datos de mercado via yfinance
           </p>
           <p className="mt-1">
             Análisis basado en acciones subyacentes (NASDAQ/NYSE) en USD
