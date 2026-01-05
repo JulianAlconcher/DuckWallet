@@ -52,12 +52,17 @@ export default function Header({ date, onRefresh, isLoading, currency, onCurrenc
 
           {date && (
             <span className="text-sm text-slate-400 hidden md:block">
-              Actualizado: {new Date(date).toLocaleDateString('es-AR', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
+              Actualizado: {(() => {
+                // Parsear la fecha correctamente para evitar problemas de zona horaria
+                const [year, month, day] = date.split('-').map(Number);
+                const dateObj = new Date(year, month - 1, day);
+                return dateObj.toLocaleDateString('es-AR', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                });
+              })()}
             </span>
           )}
           
