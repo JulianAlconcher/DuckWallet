@@ -238,12 +238,9 @@ function App() {
         )}
 
         {/* Footer */}
-        <footer className="mt-12 text-center text-slate-500 text-sm">
+        <footer className="mt-20 text-center text-slate-500 text-sm">
           <p>
-            DuckWallet v1.0 • Datos de mercado via yfinance
-          </p>
-          <p className="mt-1">
-            Análisis basado en acciones subyacentes (NASDAQ/NYSE) en USD
+            DuckWallet v1.0 • Datos de mercado via yfinance (Yahoo Finance)
           </p>
         </footer>
         </div>
