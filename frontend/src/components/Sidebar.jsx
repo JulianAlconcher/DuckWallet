@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { 
   Rocket, 
   Gem, 
@@ -5,8 +6,54 @@ import {
   Coins, 
   RefreshCcw,
   ChevronRight,
-  Info
+  Info,
+  Clock
 } from 'lucide-react';
+
+/**
+ * Determina si el mercado de EE.UU. está abierto.
+ * NYSE/NASDAQ: 9:30 AM - 4:00 PM Eastern Time (ET)
+ * En Argentina (UTC-3): aproximadamente 10:30 - 17:00
+ */
+function getMarketStatus() {
+  const now = new Date();
+  
+  // Obtener hora en Eastern Time
+  const etTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const day = etTime.getDay(); // 0 = Domingo, 6 = Sábado
+  const hours = etTime.getHours();
+  const minutes = etTime.getMinutes();
+  const currentMinutes = hours * 60 + minutes;
+  
+  // Mercado abierto: Lunes a Viernes, 9:30 AM - 4:00 PM ET
+  const marketOpen = 9 * 60 + 30;  // 9:30 AM = 570 minutos
+  const marketClose = 16 * 60;      // 4:00 PM = 960 minutos
+  
+  // Fines de semana
+  if (day === 0 || day === 6) {
+    return { isOpen: false, label: 'Mercado Cerrado', sublabel: 'Fin de semana' };
+  }
+  
+  // Pre-market (4:00 AM - 9:30 AM ET)
+  if (currentMinutes >= 240 && currentMinutes < marketOpen) {
+    return { isOpen: false, label: 'Mercado Cerrado', sublabel: 'Abre 10:30 ARG' };
+  }
+  
+  // Mercado abierto
+  if (currentMinutes >= marketOpen && currentMinutes < marketClose) {
+    const remaining = marketClose - currentMinutes;
+    const hoursLeft = Math.floor(remaining / 60);
+    const minsLeft = remaining % 60;
+    return { 
+      isOpen: true, 
+      label: 'Mercado Abierto', 
+      sublabel: `Cierra en ${hoursLeft}h ${minsLeft}m`
+    };
+  }
+  
+  // After-hours o cerrado
+  return { isOpen: false, label: 'Mercado Cerrado', sublabel: 'Abre 10:30 ARG' };
+}
 
 const strategies = [
   {
@@ -57,8 +104,44 @@ const strategies = [
 ];
 
 export default function Sidebar({ selectedStrategy, onStrategyChange }) {
+  const [marketStatus, setMarketStatus] = useState(getMarketStatus());
+
+  // Actualizar estado del mercado cada minuto
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMarketStatus(getMarketStatus());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <aside className="w-64 bg-slate-800 border-r border-slate-700 p-4 flex flex-col flex-shrink-0 sticky top-0 h-screen overflow-y-auto">
+      {/* Indicador de mercado */}
+      <div className={`mb-4 p-3 rounded-lg border ${
+        marketStatus.isOpen 
+          ? 'bg-success-500/10 border-success-500/30' 
+          : 'bg-danger-500/10 border-danger-500/30'
+      }`}>
+        <div className="flex items-center gap-2">
+          <div className={`w-2.5 h-2.5 rounded-full ${
+            marketStatus.isOpen 
+              ? 'bg-success-400 animate-pulse' 
+              : 'bg-danger-400'
+          }`} />
+          <span className={`text-sm font-medium ${
+            marketStatus.isOpen ? 'text-success-400' : 'text-danger-400'
+          }`}>
+            {marketStatus.label}
+          </span>
+        </div>
+        <p className="text-xs text-slate-500 mt-1 ml-4">
+          {marketStatus.sublabel}
+        </p>
+      </div>
+
+      {/* Separador */}
+      <div className="border-b border-slate-700 mb-4" />
+
       {/* Header del sidebar */}
       <div className="mb-6">
         <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-1">
