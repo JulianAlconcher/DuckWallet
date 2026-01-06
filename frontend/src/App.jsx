@@ -142,7 +142,7 @@ function App() {
                 {/* 2do lugar - Plata */}
                 {data.top5[1] && (
                   <div className="w-full md:w-80 self-center">
-                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-gray-300/20 via-gray-200/10 to-gray-500/30">
+                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-gray-300/20 py-2 via-gray-200/10 to-gray-500/30">
                       <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
                         <span className="bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 text-gray-800 text-sm font-bold px-4 py-1 rounded-full shadow-lg">
                           🥈 2do
@@ -168,7 +168,7 @@ function App() {
                 {/* 1er lugar - Oro */}
                 {data.top5[0] && (
                   <div className="w-full md:w-80 self-center">
-                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-yellow-500/25 via-yellow-400/15 to-yellow-600/40 shadow-xl shadow-yellow-500/20">
+                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-yellow-500/25 via-yellow-400/15 to-yellow-600/40 shadow-xl py-2 shadow-yellow-500/20">
                       <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
                         <span className="bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 text-yellow-900 text-sm font-bold px-4 py-1 rounded-full shadow-lg animate-pulse">
                           🥇 1ro
@@ -194,7 +194,7 @@ function App() {
                 {/* 3er lugar - Bronce */}
                 {data.top5[2] && (
                   <div className="w-full md:w-80 self-center">
-                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-amber-700/20 via-amber-600/10 to-amber-700/35">
+                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-amber-700/20 py-2 via-amber-600/10 to-amber-700/35">
                       <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
                         <span className="bg-gradient-to-r from-amber-700 via-amber-500 to-amber-700 text-amber-100 text-sm font-bold px-4 py-1 rounded-full shadow-lg">
                           🥉 3ro
