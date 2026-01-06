@@ -58,7 +58,7 @@ const strategies = [
 
 export default function Sidebar({ selectedStrategy, onStrategyChange }) {
   return (
-    <aside className="w-64 bg-slate-800/50 backdrop-blur-sm border-r border-slate-700 p-4 flex flex-col">
+    <aside className="w-64 bg-slate-800 border-r border-slate-700 p-4 flex flex-col flex-shrink-0 sticky top-0 h-screen overflow-y-auto">
       {/* Header del sidebar */}
       <div className="mb-6">
         <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-1">
