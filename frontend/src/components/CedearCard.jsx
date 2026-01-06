@@ -209,7 +209,7 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
   };
 
   return (
-    <div className="card-hover p-5">
+    <div className="card-hover p-5 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -234,17 +234,16 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
       {/* Precio actual */}
       <div className="mb-4 pb-4 border-b border-slate-700">
         <p className="text-sm text-slate-400 mb-1">{priceLabel}</p>
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-2 h-8">
           <span className="text-2xl font-bold text-white">{currencySymbol}{formatPrice(displayPrice)}</span>
           {strategy === 'momentum' && formatChange(displayChange)}
         </div>
-        {currency === 'ARS' && !price_ars && (
-          <p className="text-xs text-slate-500 mt-1">Precio ARS no disponible</p>
-        )}
       </div>
 
       {/* Indicadores según estrategia */}
-      {renderIndicators()}
+      <div className="flex-1">
+        {renderIndicators()}
+      </div>
 
       {/* Score Breakdown (si está disponible) */}
       {score_breakdown && (

@@ -29,10 +29,10 @@ export default function Header({ date, onRefresh, isLoading, currency, onCurrenc
           {/* Título */}
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-white">
-              DuckWallet Screener
+              DuckWallet
             </h1>
             <p className="text-slate-400 text-sm">
-              Top 6 con mayor fortaleza técnica
+              Tu radar de CEDEARs
             </p>
           </div>
         </div>
