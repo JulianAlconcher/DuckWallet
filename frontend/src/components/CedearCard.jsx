@@ -116,6 +116,42 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
       );
     }
     
+    if (strategy === 'defensive') {
+      // Para Defensive: Volatilidad, Beta, Dividendo
+      const volatility = daily_change_pct; // Volatilidad % está en daily_change_pct
+      const beta = volume_ratio;           // Beta está en volume_ratio
+      const divYield = rsi;                // Div yield % está en rsi
+      
+      return (
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <p className="text-xs text-slate-400 mb-1">Beta</p>
+            <p className={`text-lg font-semibold ${
+              beta < 0.8 ? 'text-success-400' : beta < 1.0 ? 'text-yellow-400' : 'text-slate-300'
+            }`}>
+              {beta > 0 ? beta.toFixed(2) : 'N/A'}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 mb-1">Volatilidad</p>
+            <p className={`text-lg font-semibold ${
+              volatility < 2 ? 'text-success-400' : volatility < 3 ? 'text-yellow-400' : 'text-slate-300'
+            }`}>
+              {volatility > 0 ? `${volatility.toFixed(1)}%` : 'N/A'}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 mb-1">Dividendo</p>
+            <p className={`text-lg font-semibold ${
+              divYield >= 1.5 ? 'text-success-400' : 'text-slate-300'
+            }`}>
+              {divYield > 0 ? `${divYield.toFixed(1)}%` : 'N/A'}
+            </p>
+          </div>
+        </div>
+      );
+    }
+    
     // Para Momentum (default)
     return (
       <div className="grid grid-cols-3 gap-4 mb-4">

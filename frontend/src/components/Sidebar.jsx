@@ -79,7 +79,7 @@ const strategies = [
     name: 'Defensivo',
     icon: Shield,
     description: 'Acciones estables con baja volatilidad',
-    available: false,
+    available: true,
     color: 'text-blue-400',
     bgColor: 'bg-blue-500/20',
   },
@@ -216,6 +216,12 @@ export default function Sidebar({ selectedStrategy, onStrategyChange }) {
                 <>
                   <span className="text-white font-medium">Value</span> busca acciones "baratas" 
                   con P/E bajo, buenos dividendos y ROE alto.
+                </>
+              )}
+              {selectedStrategy === 'defensive' && (
+                <>
+                  <span className="text-white font-medium">Defensivo</span> busca acciones estables 
+                  con beta bajo, baja volatilidad y sectores defensivos.
                 </>
               )}
             </p>

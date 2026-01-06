@@ -64,6 +64,8 @@ class FundamentalDataService:
                 # Info adicional
                 "market_cap": info.get("marketCap"),
                 "sector": info.get("sector"),
+                # Riesgo/Volatilidad
+                "beta": info.get("beta"),
             }
         except Exception as e:
             logger.error(f"Error obteniendo fundamentales de {ticker}: {str(e)}")

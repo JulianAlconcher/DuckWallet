@@ -14,6 +14,7 @@ from ..services.technical_analysis import technical_analysis_service
 from ..services.scoring import scoring_service
 from ..services.fundamental_data import fundamental_data_service
 from ..services.value_scoring import value_scoring_service
+from ..services.defensive_scoring import defensive_scoring_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -43,9 +44,9 @@ async def get_top5_cedears(
         True, 
         description="Incluir desglose del puntaje"
     ),
-    strategy: Literal["momentum", "value"] = Query(
+    strategy: Literal["momentum", "value", "defensive"] = Query(
         "momentum",
-        description="Estrategia de análisis: momentum (técnico) o value (fundamentales)"
+        description="Estrategia de análisis: momentum (técnico), value (fundamentales) o defensive (baja volatilidad)"
     )
 ):
     """
@@ -55,6 +56,7 @@ async def get_top5_cedears(
     
     - **momentum**: Análisis técnico (variación diaria, volumen, RSI, SMA, tendencia)
     - **value**: Análisis fundamental (P/E, P/B, dividendos, ROE, deuda)
+    - **defensive**: Acciones estables (beta bajo, volatilidad baja, sectores defensivos)
     
     **Nota**: Este análisis es informativo y no constituye 
     recomendación de inversión.
@@ -121,6 +123,37 @@ async def get_top5_cedears(
             # 3. Obtener Top 6 por Value
             top5 = value_scoring_service.get_top_n(
                 fundamentals,
+                prices_dict,
+                n=6, 
+                include_breakdown=include_breakdown,
+                ars_prices=ars_prices,
+                usd_prices=usd_prices
+            )
+        
+        elif strategy == "defensive":
+            # === ESTRATEGIA DEFENSIVE (baja volatilidad) ===
+            logger.info("Ejecutando estrategia DEFENSIVE...")
+            
+            # 1. Obtener datos fundamentales (incluye beta y sector)
+            fundamentals = fundamental_data_service.get_all_fundamentals(tickers)
+            
+            if not fundamentals:
+                raise HTTPException(
+                    status_code=503,
+                    detail="No se pudieron obtener datos fundamentales"
+                )
+            
+            # 2. Obtener datos históricos para calcular volatilidad
+            stocks_data = market_data_service.get_all_stocks_data(tickers)
+            prices_dict = {}
+            for ticker, data in stocks_data.items():
+                if not data.empty:
+                    prices_dict[ticker] = float(data['Close'].iloc[-1])
+            
+            # 3. Obtener Top 6 por Defensive
+            top5 = defensive_scoring_service.get_top_n(
+                fundamentals,
+                stocks_data,
                 prices_dict,
                 n=6, 
                 include_breakdown=include_breakdown,
