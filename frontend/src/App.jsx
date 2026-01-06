@@ -136,17 +136,101 @@ function App() {
             </div>
 
             {/* Grid de tarjetas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.top5.map((cedear, index) => (
-                <CedearCard 
-                  key={cedear.cedear} 
-                  cedear={cedear} 
-                  rank={index + 1}
-                  currency={currency}
-                  strategy={strategy}
-                />
-              ))}
-            </div>
+            {strategy === 'global' ? (
+              /* Podio Top 3 para estrategia Global */
+              <div className="flex items-center justify-center gap-4 md:gap-6 min-h-[calc(100vh-300px)]">
+                {/* 2do lugar - Plata */}
+                {data.top5[1] && (
+                  <div className="w-full md:w-80 self-center">
+                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-gray-300/20 via-gray-200/10 to-gray-500/30">
+                      <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
+                        <span className="bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 text-gray-800 text-sm font-bold px-4 py-1 rounded-full shadow-lg">
+                          🥈 2do
+                        </span>
+                      </div>
+                      <div className="p-1 pt-8">
+                        <CedearCard 
+                          key={data.top5[1].cedear} 
+                          cedear={data.top5[1]} 
+                          rank={2}
+                          currency={currency}
+                          strategy={strategy}
+                        />
+                      </div>
+                      {/* Base del podio - Plata */}
+                      <div className="h-12 flex items-center justify-center">
+                        <span className="text-4xl font-bold text-gray-300/50">2</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* 1er lugar - Oro */}
+                {data.top5[0] && (
+                  <div className="w-full md:w-80 self-center">
+                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-yellow-500/25 via-yellow-400/15 to-yellow-600/40 shadow-xl shadow-yellow-500/20">
+                      <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
+                        <span className="bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 text-yellow-900 text-sm font-bold px-4 py-1 rounded-full shadow-lg animate-pulse">
+                          🥇 1ro
+                        </span>
+                      </div>
+                      <div className="p-1 pt-8">
+                        <CedearCard 
+                          key={data.top5[0].cedear} 
+                          cedear={data.top5[0]} 
+                          rank={1}
+                          currency={currency}
+                          strategy={strategy}
+                        />
+                      </div>
+                      {/* Base del podio - Oro */}
+                      <div className="h-20 flex items-center justify-center">
+                        <span className="text-5xl font-bold text-yellow-400/50">1</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* 3er lugar - Bronce */}
+                {data.top5[2] && (
+                  <div className="w-full md:w-80 self-center">
+                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-amber-700/20 via-amber-600/10 to-amber-700/35">
+                      <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
+                        <span className="bg-gradient-to-r from-amber-700 via-amber-500 to-amber-700 text-amber-100 text-sm font-bold px-4 py-1 rounded-full shadow-lg">
+                          🥉 3ro
+                        </span>
+                      </div>
+                      <div className="p-1 pt-8">
+                        <CedearCard 
+                          key={data.top5[2].cedear} 
+                          cedear={data.top5[2]} 
+                          rank={3}
+                          currency={currency}
+                          strategy={strategy}
+                        />
+                      </div>
+                      {/* Base del podio - Bronce */}
+                      <div className="h-6 flex items-center justify-center">
+                        <span className="text-3xl font-bold text-amber-500/50">3</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Grid normal para otras estrategias */
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {data.top5.map((cedear, index) => (
+                  <CedearCard 
+                    key={cedear.cedear} 
+                    cedear={cedear} 
+                    rank={index + 1}
+                    currency={currency}
+                    strategy={strategy}
+                  />
+                ))}
+              </div>
+            )}
 
             {/* Metodología */}
            
