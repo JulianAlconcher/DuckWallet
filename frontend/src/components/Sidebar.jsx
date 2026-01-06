@@ -14,30 +14,45 @@ import {
 /**
  * Determina si el mercado de EE.UU. está abierto.
  * NYSE/NASDAQ: 9:30 AM - 4:00 PM Eastern Time (ET)
- * En Argentina (UTC-3): aproximadamente 10:30 - 17:00
  */
 function getMarketStatus() {
   const now = new Date();
   
-  // Obtener hora en Eastern Time
-  const etTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-  const day = etTime.getDay(); // 0 = Domingo, 6 = Sábado
-  const hours = etTime.getHours();
-  const minutes = etTime.getMinutes();
+  // Obtener componentes de hora en Eastern Time
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hour: 'numeric',
+    minute: 'numeric',
+    weekday: 'short',
+    hour12: false
+  });
+  
+  const parts = formatter.formatToParts(now);
+  const hours = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+  const minutes = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+  const weekday = parts.find(p => p.type === 'weekday')?.value || '';
+  
   const currentMinutes = hours * 60 + minutes;
+  const isWeekend = weekday === 'Sat' || weekday === 'Sun';
   
   // Mercado abierto: Lunes a Viernes, 9:30 AM - 4:00 PM ET
   const marketOpen = 9 * 60 + 30;  // 9:30 AM = 570 minutos
   const marketClose = 16 * 60;      // 4:00 PM = 960 minutos
   
   // Fines de semana
-  if (day === 0 || day === 6) {
+  if (isWeekend) {
     return { isOpen: false, label: 'Mercado Cerrado', sublabel: 'Fin de semana' };
   }
   
-  // Pre-market (4:00 AM - 9:30 AM ET)
-  if (currentMinutes >= 240 && currentMinutes < marketOpen) {
-    return { isOpen: false, label: 'Mercado Cerrado', sublabel: 'Abre 10:30 ARG' };
+  // Pre-market (antes de 9:30 AM ET)
+  if (currentMinutes < marketOpen) {
+    const remaining = marketOpen - currentMinutes;
+    const hoursLeft = Math.floor(remaining / 60);
+    const minsLeft = remaining % 60;
+    if (hoursLeft > 0) {
+      return { isOpen: false, label: 'Pre-Market', sublabel: `Abre en ${hoursLeft}h ${minsLeft}m` };
+    }
+    return { isOpen: false, label: 'Pre-Market', sublabel: `Abre en ${minsLeft}m` };
   }
   
   // Mercado abierto
@@ -52,8 +67,8 @@ function getMarketStatus() {
     };
   }
   
-  // After-hours o cerrado
-  return { isOpen: false, label: 'Mercado Cerrado', sublabel: 'Abre 10:30 ARG' };
+  // After-hours
+  return { isOpen: false, label: 'Mercado Cerrado', sublabel: 'Abre mañana 9:30 ET' };
 }
 
 const strategies = [

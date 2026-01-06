@@ -26,11 +26,12 @@ class GlobalScoringService:
         momentum_results: List[CEDEARScore],
         value_results: List[CEDEARScore],
         defensive_results: List[CEDEARScore],
-        top_n_per_strategy: int = 6,
+        top_n_per_strategy: int = 10,
         max_results: int = 6
     ) -> List[CEDEARScore]:
         """
         Encuentra CEDEARs que aparecen en el top de múltiples estrategias.
+        Si no hay suficientes, combina los mejores de cada estrategia.
         
         Args:
             momentum_results: Top CEDEARs por momentum
@@ -66,9 +67,25 @@ class GlobalScoringService:
         # Filtrar los que aparecen en más de una estrategia
         global_tickers = {t for t, count in ticker_counts.items() if count >= 2}
         
-        if not global_tickers:
-            logger.info("No hay CEDEARs que aparezcan en múltiples estrategias")
-            return []
+        # Si no hay suficientes coincidencias, combinar los mejores de cada estrategia
+        if len(global_tickers) < 3:
+            logger.info(f"Solo {len(global_tickers)} CEDEARs multi-estrategia, combinando mejores de cada una")
+            # Tomar el #1 de cada estrategia (sin repetir)
+            combined = []
+            seen = set()
+            for result_list in [momentum_results, value_results, defensive_results]:
+                if result_list:
+                    for r in result_list:
+                        if r.cedear not in seen:
+                            combined.append(r)
+                            seen.add(r.cedear)
+                            break
+            # Si aún no tenemos 3, agregar más de momentum
+            for r in momentum_results:
+                if r.cedear not in seen and len(combined) < max_results:
+                    combined.append(r)
+                    seen.add(r.cedear)
+            return combined[:max_results]
         
         logger.info(f"CEDEARs globales encontrados: {global_tickers}")
         

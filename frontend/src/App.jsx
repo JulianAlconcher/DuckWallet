@@ -12,21 +12,37 @@ import ErrorMessage from './components/ErrorMessage';
  */
 function isMarketOpen() {
   const now = new Date();
-  const etTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-  const day = etTime.getDay();
-  const hours = etTime.getHours();
-  const minutes = etTime.getMinutes();
+  
+  // Obtener componentes de hora en Eastern Time
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hour: 'numeric',
+    minute: 'numeric',
+    weekday: 'short',
+    hour12: false
+  });
+  
+  const parts = formatter.formatToParts(now);
+  const hours = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+  const minutes = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+  const weekday = parts.find(p => p.type === 'weekday')?.value || '';
+  
   const currentMinutes = hours * 60 + minutes;
+  const isWeekend = weekday === 'Sat' || weekday === 'Sun';
   
   const marketOpen = 9 * 60 + 30;
   const marketClose = 16 * 60;
   
   // Cerrado fines de semana o fuera de horario
-  if (day === 0 || day === 6) return false;
+  if (isWeekend) return false;
   if (currentMinutes < marketOpen || currentMinutes >= marketClose) return false;
   
   return true;
 }
+
+// Cache global para persistir entre re-renders
+const dataCache = {};
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos de cache
 
 function App() {
   const [data, setData] = useState(null);
@@ -36,42 +52,70 @@ function App() {
   const [strategy, setStrategy] = useState('momentum'); // Estrategia seleccionada
   const [sidebarOpen, setSidebarOpen] = useState(true); // Sidebar visible
   
-  // Refs para trackear datos sin causar re-renders
-  const cachedDataRef = useRef({}); // { [strategy]: data }
+  // Para evitar carreras de condición
+  const fetchIdRef = useRef(0);
 
   const fetchData = useCallback(async (force = false) => {
-    const cachedData = cachedDataRef.current[strategy];
+    const cached = dataCache[strategy];
+    const now = Date.now();
     
-    // Si el mercado está cerrado y ya tenemos datos cacheados para esta estrategia, usar cache
-    if (!force && !isMarketOpen() && cachedData) {
-      console.log('Mercado cerrado, usando datos en cache para:', strategy);
-      setData(cachedData);
+    // Usar cache si existe, no es forzado, y no expiró (o mercado cerrado)
+    if (!force && cached && (now - cached.timestamp < CACHE_TTL || !isMarketOpen())) {
+      console.log('Usando cache para:', strategy);
+      setData(cached.data);
       setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
+    // Solo mostrar loading si NO hay datos cacheados
+    if (!cached) {
+      setIsLoading(true);
+    }
     setError(null);
+    
+    const fetchId = ++fetchIdRef.current;
     
     try {
       const result = await getTop5Cedears(true, strategy);
-      setData(result);
-      // Guardar en cache
-      cachedDataRef.current[strategy] = result;
+      
+      // Solo actualizar si este es el fetch más reciente
+      if (fetchId === fetchIdRef.current) {
+        setData(result);
+        // Guardar en cache con timestamp
+        dataCache[strategy] = { data: result, timestamp: Date.now() };
+        setIsLoading(false);
+      }
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError(
-        err.response?.data?.detail || 
-        'No se pudo conectar con el servidor. Verifique que el backend esté corriendo.'
-      );
-    } finally {
-      setIsLoading(false);
+      if (fetchId === fetchIdRef.current) {
+        console.error('Error fetching data:', err);
+        setError(
+          err.response?.data?.detail || 
+          'No se pudo conectar con el servidor. Verifique que el backend esté corriendo.'
+        );
+        setIsLoading(false);
+      }
     }
   }, [strategy]);
 
+  // Efecto para cambio de estrategia
+  useEffect(() => {
+    const cached = dataCache[strategy];
+    const now = Date.now();
+    
+    // Si hay cache válido, mostrar inmediatamente
+    if (cached && (now - cached.timestamp < CACHE_TTL || !isMarketOpen())) {
+      setData(cached.data);
+      setIsLoading(false);
+    } else {
+      // Si no hay cache, hacer fetch
+      fetchData();
+    }
+  }, [strategy]);
+  
+  // Fetch inicial solo para momentum
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 flex">

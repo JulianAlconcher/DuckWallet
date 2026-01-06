@@ -13,6 +13,9 @@ from ..config import CEDEAR_UNIVERSE, TECHNICAL_PARAMS
 
 logger = logging.getLogger(__name__)
 
+# Silenciar los errores de yfinance (muy verbosos)
+logging.getLogger('yfinance').setLevel(logging.CRITICAL)
+
 
 class MarketDataService:
     """
@@ -24,12 +27,30 @@ class MarketDataService:
         self.cache: Dict[str, pd.DataFrame] = {}
         self.cache_timestamp: Optional[datetime] = None
         self.cache_ttl = timedelta(minutes=15)  # Cache de 15 minutos
+        
+        # Cache separado para precios ARS y USD (más agresivo)
+        self.ars_cache: Dict[str, Dict] = {}
+        self.ars_cache_timestamp: Optional[datetime] = None
+        self.usd_cache: Dict[str, Dict] = {}
+        self.usd_cache_timestamp: Optional[datetime] = None
     
     def _is_cache_valid(self) -> bool:
         """Verifica si el cache es válido."""
         if self.cache_timestamp is None:
             return False
         return datetime.now() - self.cache_timestamp < self.cache_ttl
+    
+    def _is_ars_cache_valid(self) -> bool:
+        """Verifica si el cache de ARS es válido."""
+        if self.ars_cache_timestamp is None:
+            return False
+        return datetime.now() - self.ars_cache_timestamp < self.cache_ttl
+    
+    def _is_usd_cache_valid(self) -> bool:
+        """Verifica si el cache de USD es válido."""
+        if self.usd_cache_timestamp is None:
+            return False
+        return datetime.now() - self.usd_cache_timestamp < self.cache_ttl
     
     def get_stock_history(
         self, 
@@ -171,6 +192,11 @@ class MarketDataService:
         Returns:
             Diccionario {ticker: {"price_ars": float, "daily_change_pct_ars": float}}
         """
+        # Verificar cache
+        if self._is_ars_cache_valid() and self.ars_cache:
+            logger.info("Usando cache de precios ARS")
+            return {t: self.ars_cache[t] for t in tickers if t in self.ars_cache}
+        
         result = {}
         cedear_tickers = [f"{t}.BA" for t in tickers]
         tickers_str = " ".join(cedear_tickers)
@@ -218,6 +244,10 @@ class MarketDataService:
         except Exception as e:
             logger.error(f"Error obteniendo precios ARS: {str(e)}")
         
+        # Guardar en cache
+        self.ars_cache.update(result)
+        self.ars_cache_timestamp = datetime.now()
+        
         logger.info(f"Precios ARS obtenidos para {len(result)}/{len(tickers)} CEDEARs")
         return result
 
@@ -234,6 +264,11 @@ class MarketDataService:
         Returns:
             Diccionario {ticker: {"price_usd": float, "daily_change_pct_usd": float}}
         """
+        # Verificar cache
+        if self._is_usd_cache_valid() and self.usd_cache:
+            logger.info("Usando cache de precios USD")
+            return {t: self.usd_cache[t] for t in tickers if t in self.usd_cache}
+        
         result = {}
         cedear_tickers = [f"{t}D.BA" for t in tickers]
         tickers_str = " ".join(cedear_tickers)
@@ -280,6 +315,10 @@ class MarketDataService:
                         
         except Exception as e:
             logger.error(f"Error obteniendo precios USD: {str(e)}")
+        
+        # Guardar en cache
+        self.usd_cache.update(result)
+        self.usd_cache_timestamp = datetime.now()
         
         logger.info(f"Precios USD obtenidos para {len(result)}/{len(tickers)} CEDEARs")
         return result
