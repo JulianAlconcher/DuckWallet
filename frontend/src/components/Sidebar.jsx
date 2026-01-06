@@ -41,7 +41,7 @@ function getMarketStatus() {
   
   // Fines de semana
   if (isWeekend) {
-    return { isOpen: false, label: 'Mercado Cerrado', sublabel: 'Fin de semana' };
+    return { isOpen: false, isPreMarket: false, label: 'Mercado Cerrado', sublabel: 'Fin de semana' };
   }
   
   // Pre-market (antes de 9:30 AM ET)
@@ -50,9 +50,9 @@ function getMarketStatus() {
     const hoursLeft = Math.floor(remaining / 60);
     const minsLeft = remaining % 60;
     if (hoursLeft > 0) {
-      return { isOpen: false, label: 'Pre-Market', sublabel: `Abre en ${hoursLeft}h ${minsLeft}m` };
+      return { isOpen: false, isPreMarket: true, label: 'Pre-Market', sublabel: `Abre en ${hoursLeft}h ${minsLeft}m` };
     }
-    return { isOpen: false, label: 'Pre-Market', sublabel: `Abre en ${minsLeft}m` };
+    return { isOpen: false, isPreMarket: true, label: 'Pre-Market', sublabel: `Abre en ${minsLeft}m` };
   }
   
   // Mercado abierto
@@ -62,13 +62,14 @@ function getMarketStatus() {
     const minsLeft = remaining % 60;
     return { 
       isOpen: true, 
+      isPreMarket: false,
       label: 'Mercado Abierto', 
       sublabel: `Cierra en ${hoursLeft}h ${minsLeft}m`
     };
   }
   
   // After-hours
-  return { isOpen: false, label: 'Mercado Cerrado', sublabel: 'Abre mañana 9:30 ET' };
+  return { isOpen: false, isPreMarket: false, label: 'Mercado Cerrado', sublabel: 'Abre mañana 9:30 ET' };
 }
 
 const strategies = [
@@ -145,19 +146,33 @@ export default function Sidebar({ selectedStrategy, onStrategyChange }) {
       <div className={`mb-4 p-3 rounded-lg border ${
         marketStatus.isOpen 
           ? 'bg-success-500/10 border-success-500/30' 
-          : 'bg-danger-500/10 border-danger-500/30'
+          : marketStatus.isPreMarket
+            ? 'bg-amber-500/10 border-amber-500/30'
+            : 'bg-danger-500/10 border-danger-500/30'
       }`}>
         <div className="flex items-center gap-2">
           <div className="relative flex h-3 w-3">
             <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-              marketStatus.isOpen ? 'bg-success-400' : 'bg-danger-400'
+              marketStatus.isOpen 
+                ? 'bg-success-400' 
+                : marketStatus.isPreMarket 
+                  ? 'bg-amber-400'
+                  : 'bg-danger-400'
             }`}></span>
             <span className={`relative inline-flex rounded-full h-3 w-3 ${
-              marketStatus.isOpen ? 'bg-success-500' : 'bg-danger-500'
+              marketStatus.isOpen 
+                ? 'bg-success-500' 
+                : marketStatus.isPreMarket
+                  ? 'bg-amber-500'
+                  : 'bg-danger-500'
             }`}></span>
           </div>
           <span className={`text-sm font-medium ${
-            marketStatus.isOpen ? 'text-success-400' : 'text-danger-400'
+            marketStatus.isOpen 
+              ? 'text-success-400' 
+              : marketStatus.isPreMarket
+                ? 'text-amber-400'
+                : 'text-danger-400'
           }`}>
             {marketStatus.label}
           </span>
