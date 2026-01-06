@@ -210,7 +210,7 @@ function App() {
                         />
                       </div>
                       {/* Base del podio - Bronce */}
-                      <div className="h-6 flex items-center justify-center">
+                      <div className="h-6 flex items-center justify-center mb-2">
                         <span className="text-3xl font-bold text-amber-500/50">3</span>
                       </div>
                     </div>
@@ -240,7 +240,7 @@ function App() {
         {/* Footer */}
         <footer className="mt-12 text-center text-slate-500 text-sm">
           <p>
-            DuckWallet Screener v1.0 • Datos de mercado via yfinance
+            DuckWallet v1.0 • Datos de mercado via yfinance
           </p>
           <p className="mt-1">
             Análisis basado en acciones subyacentes (NASDAQ/NYSE) en USD
