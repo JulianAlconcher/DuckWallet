@@ -12,7 +12,7 @@ const apiClient = axios.create({
 /**
  * Obtiene el Top 6 de CEDEARs según la estrategia seleccionada.
  * @param {boolean} includeBreakdown - Incluir desglose del puntaje
- * @param {string} strategy - Estrategia: 'momentum', 'value' o 'defensive'
+ * @param {string} strategy - Estrategia: 'momentum', 'value', 'defensive' o 'global'
  */
 export const getTop5Cedears = async (includeBreakdown = true, strategy = 'momentum') => {
   try {

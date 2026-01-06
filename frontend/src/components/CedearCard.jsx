@@ -82,6 +82,35 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
 
   // Renderizar indicadores según estrategia
   const renderIndicators = () => {
+    if (strategy === 'global') {
+      // Para Global: # Estrategias, Score Promedio, Tendencia
+      const numStrategies = Math.round(volume_ratio); // # de estrategias está en volume_ratio
+      const avgScore = rsi;                           // Score promedio está en rsi
+      
+      return (
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <p className="text-xs text-slate-400 mb-1">Estrategias</p>
+            <p className="text-lg font-semibold text-amber-400">
+              {numStrategies} de 3
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 mb-1">Score Prom.</p>
+            <p className={`text-lg font-semibold ${
+              avgScore >= 7 ? 'text-success-400' : avgScore >= 5 ? 'text-yellow-400' : 'text-slate-300'
+            }`}>
+              {avgScore.toFixed(0)}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 mb-1">Tendencia</p>
+            {getTrendBadge(trend)}
+          </div>
+        </div>
+      );
+    }
+    
     if (strategy === 'value') {
       // Para Value: P/E, Div Yield, ROE (almacenados en campos reutilizados)
       const pe = rsi; // P/E está en el campo rsi

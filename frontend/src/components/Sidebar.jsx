@@ -7,7 +7,8 @@ import {
   RefreshCcw,
   ChevronRight,
   Info,
-  Clock
+  Clock,
+  Globe
 } from 'lucide-react';
 
 /**
@@ -56,6 +57,15 @@ function getMarketStatus() {
 }
 
 const strategies = [
+  {
+    id: 'global',
+    name: 'Global',
+    icon: Globe,
+    description: 'CEDEARs que destacan en múltiples estrategias',
+    available: true,
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/20',
+  },
   {
     id: 'momentum',
     name: 'Momentum',
@@ -206,6 +216,12 @@ export default function Sidebar({ selectedStrategy, onStrategyChange }) {
           <Info className="w-4 h-4 text-primary-400 mt-0.5 flex-shrink-0" />
           <div>
             <p className="text-xs text-slate-400">
+              {selectedStrategy === 'global' && (
+                <>
+                  <span className="text-white font-medium">Global</span> muestra CEDEARs que 
+                  destacan en múltiples estrategias simultáneamente.
+                </>
+              )}
               {selectedStrategy === 'momentum' && (
                 <>
                   <span className="text-white font-medium">Momentum</span> busca acciones con 

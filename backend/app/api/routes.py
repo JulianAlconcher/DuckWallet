@@ -15,6 +15,7 @@ from ..services.scoring import scoring_service
 from ..services.fundamental_data import fundamental_data_service
 from ..services.value_scoring import value_scoring_service
 from ..services.defensive_scoring import defensive_scoring_service
+from ..services.global_scoring import global_scoring_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -44,9 +45,9 @@ async def get_top5_cedears(
         True, 
         description="Incluir desglose del puntaje"
     ),
-    strategy: Literal["momentum", "value", "defensive"] = Query(
+    strategy: Literal["momentum", "value", "defensive", "global"] = Query(
         "momentum",
-        description="Estrategia de análisis: momentum (técnico), value (fundamentales) o defensive (baja volatilidad)"
+        description="Estrategia de análisis: momentum (técnico), value (fundamentales), defensive (baja volatilidad) o global (multi-estrategia)"
     )
 ):
     """
@@ -57,6 +58,7 @@ async def get_top5_cedears(
     - **momentum**: Análisis técnico (variación diaria, volumen, RSI, SMA, tendencia)
     - **value**: Análisis fundamental (P/E, P/B, dividendos, ROE, deuda)
     - **defensive**: Acciones estables (beta bajo, volatilidad baja, sectores defensivos)
+    - **global**: CEDEARs que destacan en múltiples estrategias
     
     **Nota**: Este análisis es informativo y no constituye 
     recomendación de inversión.
@@ -160,6 +162,72 @@ async def get_top5_cedears(
                 ars_prices=ars_prices,
                 usd_prices=usd_prices
             )
+        
+        elif strategy == "global":
+            # === ESTRATEGIA GLOBAL (multi-estrategia) ===
+            logger.info("Ejecutando estrategia GLOBAL...")
+            
+            # 1. Obtener datos de mercado
+            stocks_data = market_data_service.get_all_stocks_data(tickers)
+            
+            if not stocks_data:
+                raise HTTPException(
+                    status_code=503,
+                    detail="No se pudieron obtener datos de mercado"
+                )
+            
+            # 2. Calcular indicadores técnicos para momentum
+            indicators = technical_analysis_service.analyze_multiple_stocks(stocks_data)
+            
+            # 3. Obtener datos fundamentales para value y defensive
+            fundamentals = fundamental_data_service.get_all_fundamentals(tickers)
+            
+            prices_dict = {}
+            for ticker, data in stocks_data.items():
+                if not data.empty:
+                    prices_dict[ticker] = float(data['Close'].iloc[-1])
+            
+            # 4. Obtener top de cada estrategia
+            momentum_top = scoring_service.get_top_n(
+                indicators, 
+                n=10,  # Más amplio para encontrar coincidencias
+                include_breakdown=include_breakdown,
+                ars_prices=ars_prices,
+                usd_prices=usd_prices
+            )
+            
+            value_top = value_scoring_service.get_top_n(
+                fundamentals,
+                prices_dict,
+                n=10,
+                include_breakdown=include_breakdown,
+                ars_prices=ars_prices,
+                usd_prices=usd_prices
+            ) if fundamentals else []
+            
+            defensive_top = defensive_scoring_service.get_top_n(
+                fundamentals,
+                stocks_data,
+                prices_dict,
+                n=10,
+                include_breakdown=include_breakdown,
+                ars_prices=ars_prices,
+                usd_prices=usd_prices
+            ) if fundamentals else []
+            
+            # 5. Encontrar CEDEARs que aparecen en múltiples estrategias
+            top5 = global_scoring_service.get_global_cedears(
+                momentum_top,
+                value_top,
+                defensive_top,
+                top_n_per_strategy=10,
+                max_results=6
+            )
+            
+            if not top5:
+                # Si no hay coincidencias, devolver los mejores de momentum
+                logger.info("No hay CEDEARs multi-estrategia, usando momentum")
+                top5 = momentum_top[:6]
         
         return Top5Response(
             date=date.today().isoformat(),
