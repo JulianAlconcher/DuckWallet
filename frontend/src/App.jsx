@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getTop5Cedears } from './services/api';
 import CedearCard from './components/CedearCard';
 import Header from './components/Header';
@@ -7,6 +7,27 @@ import Disclaimer from './components/Disclaimer';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorMessage from './components/ErrorMessage';
 
+/**
+ * Verifica si el mercado de EE.UU. está abierto.
+ */
+function isMarketOpen() {
+  const now = new Date();
+  const etTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const day = etTime.getDay();
+  const hours = etTime.getHours();
+  const minutes = etTime.getMinutes();
+  const currentMinutes = hours * 60 + minutes;
+  
+  const marketOpen = 9 * 60 + 30;
+  const marketClose = 16 * 60;
+  
+  // Cerrado fines de semana o fuera de horario
+  if (day === 0 || day === 6) return false;
+  if (currentMinutes < marketOpen || currentMinutes >= marketClose) return false;
+  
+  return true;
+}
+
 function App() {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -14,14 +35,29 @@ function App() {
   const [currency, setCurrency] = useState('ARS'); // Por defecto ARS
   const [strategy, setStrategy] = useState('momentum'); // Estrategia seleccionada
   const [sidebarOpen, setSidebarOpen] = useState(true); // Sidebar visible
+  
+  // Refs para trackear datos sin causar re-renders
+  const cachedDataRef = useRef({}); // { [strategy]: data }
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (force = false) => {
+    const cachedData = cachedDataRef.current[strategy];
+    
+    // Si el mercado está cerrado y ya tenemos datos cacheados para esta estrategia, usar cache
+    if (!force && !isMarketOpen() && cachedData) {
+      console.log('Mercado cerrado, usando datos en cache para:', strategy);
+      setData(cachedData);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     
     try {
       const result = await getTop5Cedears(true, strategy);
       setData(result);
+      // Guardar en cache
+      cachedDataRef.current[strategy] = result;
     } catch (err) {
       console.error('Error fetching data:', err);
       setError(
@@ -58,7 +94,7 @@ function App() {
         <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
           <Header 
             date={data?.date} 
-            onRefresh={fetchData} 
+            onRefresh={() => fetchData(true)} 
             isLoading={isLoading}
             currency={currency}
             onCurrencyChange={setCurrency}
