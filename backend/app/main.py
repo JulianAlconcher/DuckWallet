@@ -61,7 +61,12 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
+        # Producción - agregar tu dominio aquí
+        "https://*.vercel.app",
+        "https://*.netlify.app",
+        "https://*.render.com",
     ],
+    allow_origin_regex=r"https://.*\.(vercel\.app|netlify\.app|render\.com)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
