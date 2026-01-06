@@ -133,18 +133,21 @@ export default function Sidebar({ selectedStrategy, onStrategyChange }) {
           : 'bg-danger-500/10 border-danger-500/30'
       }`}>
         <div className="flex items-center gap-2">
-          <div className={`w-2.5 h-2.5 rounded-full ${
-            marketStatus.isOpen 
-              ? 'bg-success-400 animate-pulse' 
-              : 'bg-danger-400'
-          }`} />
+          <div className="relative flex h-3 w-3">
+            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+              marketStatus.isOpen ? 'bg-success-400' : 'bg-danger-400'
+            }`}></span>
+            <span className={`relative inline-flex rounded-full h-3 w-3 ${
+              marketStatus.isOpen ? 'bg-success-500' : 'bg-danger-500'
+            }`}></span>
+          </div>
           <span className={`text-sm font-medium ${
             marketStatus.isOpen ? 'text-success-400' : 'text-danger-400'
           }`}>
             {marketStatus.label}
           </span>
         </div>
-        <p className="text-xs text-slate-500 mt-1 ml-4">
+        <p className="text-xs text-slate-500 mt-1 ml-5">
           {marketStatus.sublabel}
         </p>
       </div>
