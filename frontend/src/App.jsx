@@ -50,7 +50,8 @@ function App() {
   const [error, setError] = useState(null);
   const [currency, setCurrency] = useState('ARS'); // Por defecto ARS
   const [strategy, setStrategy] = useState('momentum'); // Estrategia seleccionada
-  const [sidebarOpen, setSidebarOpen] = useState(true); // Sidebar visible
+  // Sidebar oculto por defecto en mobile
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   
   // Para evitar carreras de condición
   const fetchIdRef = useRef(0);
@@ -123,7 +124,8 @@ function App() {
       {sidebarOpen && (
         <Sidebar 
           selectedStrategy={strategy} 
-          onStrategyChange={setStrategy} 
+          onStrategyChange={setStrategy}
+          onClose={() => setSidebarOpen(false)}
         />
       )}
 
@@ -135,7 +137,7 @@ function App() {
           <div className="absolute top-1/2 -left-40 w-80 h-80 bg-primary-600/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
+        <div className="relative z-10 container mx-auto px-3 md:px-4 py-4 md:py-8 max-w-6xl">
           <Header 
             date={data?.date} 
             onRefresh={() => fetchData(true)} 
@@ -159,8 +161,8 @@ function App() {
         {/* Lista de CEDEARs */}
         {!isLoading && !error && data?.top5 && (
           <>
-            {/* Indicador de score */}
-            <div className="flex items-center justify-center gap-6 mb-6 text-xs text-slate-400">
+            {/* Indicador de score - oculto en mobile */}
+            <div className="hidden md:flex items-center justify-center gap-6 mb-6 text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-success-500" />
                 <span>Score 8-10</span>
@@ -181,37 +183,11 @@ function App() {
 
             {/* Grid de tarjetas */}
             {strategy === 'global' ? (
-              /* Podio Top 3 para estrategia Global */
-              <div className="flex items-center justify-center gap-4 md:gap-6 min-h-[calc(100vh-300px)]">
-                {/* 2do lugar - Plata */}
-                {data.top5[1] && (
-                  <div className="w-full md:w-80 self-center">
-                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-gray-300/20 py-2 via-gray-200/10 to-gray-500/30">
-                      <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
-                        <span className="bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 text-gray-800 text-sm font-bold px-4 py-1 rounded-full shadow-lg">
-                          🥈 2do
-                        </span>
-                      </div>
-                      <div className="p-1 pt-8">
-                        <CedearCard 
-                          key={data.top5[1].cedear} 
-                          cedear={data.top5[1]} 
-                          rank={2}
-                          currency={currency}
-                          strategy={strategy}
-                        />
-                      </div>
-                      {/* Base del podio - Plata */}
-                      <div className="h-12 flex items-center justify-center">
-                        <span className="text-4xl font-bold text-gray-300/50">2</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* 1er lugar - Oro */}
+              /* Podio Top 3 para estrategia Global - Vertical en mobile, horizontal en desktop */
+              <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 py-4">
+                {/* 1er lugar - Oro (primero en mobile) */}
                 {data.top5[0] && (
-                  <div className="w-full md:w-80 self-center">
+                  <div className="w-full max-w-sm md:w-80 md:order-2">
                     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-yellow-500/25 via-yellow-400/15 to-yellow-600/40 shadow-xl py-2 shadow-yellow-500/20">
                       <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
                         <span className="bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 text-yellow-900 text-sm font-bold px-4 py-1 rounded-full shadow-lg animate-pulse">
@@ -228,8 +204,34 @@ function App() {
                         />
                       </div>
                       {/* Base del podio - Oro */}
-                      <div className="h-20 flex items-center justify-center">
+                      <div className="hidden md:flex h-20 items-center justify-center">
                         <span className="text-5xl font-bold text-yellow-400/50">1</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* 2do lugar - Plata */}
+                {data.top5[1] && (
+                  <div className="w-full max-w-sm md:w-80 md:order-1">
+                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-gray-300/20 py-2 via-gray-200/10 to-gray-500/30">
+                      <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
+                        <span className="bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300 text-gray-800 text-sm font-bold px-4 py-1 rounded-full shadow-lg">
+                          🥈 2do
+                        </span>
+                      </div>
+                      <div className="p-1 pt-8">
+                        <CedearCard 
+                          key={data.top5[1].cedear} 
+                          cedear={data.top5[1]} 
+                          rank={2}
+                          currency={currency}
+                          strategy={strategy}
+                        />
+                      </div>
+                      {/* Base del podio - Plata */}
+                      <div className="hidden md:flex h-12 items-center justify-center">
+                        <span className="text-4xl font-bold text-gray-300/50">2</span>
                       </div>
                     </div>
                   </div>
@@ -237,7 +239,7 @@ function App() {
                 
                 {/* 3er lugar - Bronce */}
                 {data.top5[2] && (
-                  <div className="w-full md:w-80 self-center">
+                  <div className="w-full max-w-sm md:w-80 md:order-3">
                     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-amber-700/20 py-2 via-amber-600/10 to-amber-700/35">
                       <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
                         <span className="bg-gradient-to-r from-amber-700 via-amber-500 to-amber-700 text-amber-100 text-sm font-bold px-4 py-1 rounded-full shadow-lg">
@@ -254,7 +256,7 @@ function App() {
                         />
                       </div>
                       {/* Base del podio - Bronce */}
-                      <div className="h-6 flex items-center justify-center mb-2">
+                      <div className="hidden md:flex h-6 items-center justify-center mb-2">
                         <span className="text-3xl font-bold text-amber-500/50">3</span>
                       </div>
                     </div>
@@ -263,7 +265,7 @@ function App() {
               </div>
             ) : (
               /* Grid normal para otras estrategias */
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {data.top5.map((cedear, index) => (
                   <CedearCard 
                     key={cedear.cedear} 
@@ -282,9 +284,9 @@ function App() {
         )}
 
         {/* Footer */}
-        <footer className="mt-20 text-center text-slate-500 text-sm">
+        <footer className="mt-12 md:mt-20 text-center text-slate-500 text-xs md:text-sm">
           <p>
-            DuckWallet v1.0 • Datos de mercado via yfinance (Yahoo Finance)
+            DuckWallet v1.0 • Datos via yfinance
           </p>
         </footer>
         </div>

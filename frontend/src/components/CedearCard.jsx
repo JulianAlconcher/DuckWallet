@@ -88,16 +88,16 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
       const avgScore = rsi;                           // Score promedio está en rsi
       
       return (
-        <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-4">
           <div>
             <p className="text-xs text-slate-400 mb-1">Estrategias</p>
-            <p className="text-lg font-semibold text-amber-400">
+            <p className="text-base md:text-lg font-semibold text-amber-400">
               {numStrategies} de 3
             </p>
           </div>
           <div>
             <p className="text-xs text-slate-400 mb-1">Score Prom.</p>
-            <p className={`text-lg font-semibold ${
+            <p className={`text-base md:text-lg font-semibold ${
               avgScore >= 7 ? 'text-success-400' : avgScore >= 5 ? 'text-yellow-400' : 'text-slate-300'
             }`}>
               {avgScore.toFixed(0)}
@@ -117,10 +117,10 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
       const divYield = daily_change_pct; // Div Yield está en daily_change_pct
       
       return (
-        <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-4">
           <div>
             <p className="text-xs text-slate-400 mb-1">P/E Ratio</p>
-            <p className={`text-lg font-semibold ${
+            <p className={`text-base md:text-lg font-semibold ${
               pe < 15 ? 'text-success-400' : pe < 25 ? 'text-yellow-400' : 'text-slate-300'
             }`}>
               {pe > 0 ? pe.toFixed(1) : 'N/A'}
@@ -128,7 +128,7 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
           </div>
           <div>
             <p className="text-xs text-slate-400 mb-1">Dividendo</p>
-            <p className={`text-lg font-semibold ${
+            <p className={`text-base md:text-lg font-semibold ${
               divYield >= 2 ? 'text-success-400' : 'text-slate-300'
             }`}>
               {divYield > 0 ? `${divYield.toFixed(1)}%` : 'N/A'}
@@ -152,10 +152,10 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
       const divYield = rsi;                // Div yield % está en rsi
       
       return (
-        <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-4">
           <div>
             <p className="text-xs text-slate-400 mb-1">Beta</p>
-            <p className={`text-lg font-semibold ${
+            <p className={`text-base md:text-lg font-semibold ${
               beta < 0.8 ? 'text-success-400' : beta < 1.0 ? 'text-yellow-400' : 'text-slate-300'
             }`}>
               {beta > 0 ? beta.toFixed(2) : 'N/A'}
@@ -163,7 +163,7 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
           </div>
           <div>
             <p className="text-xs text-slate-400 mb-1">Volatilidad</p>
-            <p className={`text-lg font-semibold ${
+            <p className={`text-base md:text-lg font-semibold ${
               volatility < 2 ? 'text-success-400' : volatility < 3 ? 'text-yellow-400' : 'text-slate-300'
             }`}>
               {volatility > 0 ? `${volatility.toFixed(1)}%` : 'N/A'}
@@ -171,7 +171,7 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
           </div>
           <div>
             <p className="text-xs text-slate-400 mb-1">Dividendo</p>
-            <p className={`text-lg font-semibold ${
+            <p className={`text-base md:text-lg font-semibold ${
               divYield >= 1.5 ? 'text-success-400' : 'text-slate-300'
             }`}>
               {divYield > 0 ? `${divYield.toFixed(1)}%` : 'N/A'}
@@ -183,10 +183,10 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
     
     // Para Momentum (default)
     return (
-      <div className="grid grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-4">
         <div>
           <p className="text-xs text-slate-400 mb-1">RSI (14)</p>
-          <p className={`text-lg font-semibold ${
+          <p className={`text-base md:text-lg font-semibold ${
             rsi >= 50 && rsi <= 70 ? 'text-success-400' : 'text-slate-300'
           }`}>
             {rsi.toFixed(1)}
@@ -194,7 +194,7 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
         </div>
         <div>
           <p className="text-xs text-slate-400 mb-1">Vol. Ratio</p>
-          <p className={`text-lg font-semibold ${
+          <p className={`text-base md:text-lg font-semibold ${
             volume_ratio > 1 ? 'text-success-400' : 'text-slate-300'
           }`}>
             {volume_ratio.toFixed(2)}x
@@ -209,19 +209,19 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
   };
 
   return (
-    <div className="card-hover p-5 h-full flex flex-col">
+    <div className="card-hover p-4 md:p-5 h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
+      <div className="flex items-start justify-between mb-3 md:mb-4">
+        <div className="flex items-center gap-2 md:gap-3">
           {/* Ranking */}
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-700 text-slate-300 text-sm font-bold">
+          <div className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-slate-700 text-slate-300 text-xs md:text-sm font-bold">
             #{rank}
           </div>
           
           {/* Ticker y Empresa */}
           <div>
-            <h3 className="text-xl font-bold text-white">{ticker}</h3>
-            <p className="text-sm text-slate-400 truncate max-w-[200px]">{company}</p>
+            <h3 className="text-lg md:text-xl font-bold text-white">{ticker}</h3>
+            <p className="text-xs md:text-sm text-slate-400 truncate max-w-[150px] md:max-w-[200px]">{company}</p>
           </div>
         </div>
 
@@ -232,10 +232,10 @@ export default function CedearCard({ cedear, rank, currency = 'ARS', strategy = 
       </div>
 
       {/* Precio actual */}
-      <div className="mb-4 pb-4 border-b border-slate-700">
-        <p className="text-sm text-slate-400 mb-1">{priceLabel}</p>
-        <div className="flex items-baseline gap-2 h-8">
-          <span className="text-2xl font-bold text-white">{currencySymbol}{formatPrice(displayPrice)}</span>
+      <div className="mb-3 md:mb-4 pb-3 md:pb-4 border-b border-slate-700">
+        <p className="text-xs md:text-sm text-slate-400 mb-1">{priceLabel}</p>
+        <div className="flex items-baseline gap-2 h-7 md:h-8">
+          <span className="text-xl md:text-2xl font-bold text-white">{currencySymbol}{formatPrice(displayPrice)}</span>
           {strategy === 'momentum' && formatChange(displayChange)}
         </div>
       </div>

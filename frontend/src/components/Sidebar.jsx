@@ -129,7 +129,7 @@ const strategies = [
   },
 ];
 
-export default function Sidebar({ selectedStrategy, onStrategyChange }) {
+export default function Sidebar({ selectedStrategy, onStrategyChange, onClose }) {
   const [marketStatus, setMarketStatus] = useState(getMarketStatus());
 
   // Actualizar estado del mercado cada minuto
@@ -140,9 +140,25 @@ export default function Sidebar({ selectedStrategy, onStrategyChange }) {
     return () => clearInterval(interval);
   }, []);
 
+  // Cerrar sidebar al seleccionar estrategia en mobile
+  const handleStrategyChange = (strategyId) => {
+    onStrategyChange(strategyId);
+    // Cerrar sidebar en mobile
+    if (window.innerWidth < 768 && onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <aside className="w-64 bg-slate-800 border-r border-slate-700 p-4 flex flex-col flex-shrink-0 sticky top-0 h-screen overflow-y-auto">
-      {/* Indicador de mercado */}
+    <>
+      {/* Overlay para mobile */}
+      <div 
+        className="fixed inset-0 bg-black/50 z-40 md:hidden"
+        onClick={onClose}
+      />
+      
+      <aside className="fixed md:sticky top-0 left-0 z-50 w-64 bg-slate-800 border-r border-slate-700 p-4 flex flex-col flex-shrink-0 h-screen overflow-y-auto">
+        {/* Indicador de mercado */}
       <div className={`mb-4 p-3 rounded-lg border ${
         marketStatus.isOpen 
           ? 'bg-success-500/10 border-success-500/30' 
@@ -204,7 +220,7 @@ export default function Sidebar({ selectedStrategy, onStrategyChange }) {
           return (
             <button
               key={strategy.id}
-              onClick={() => strategy.available && onStrategyChange(strategy.id)}
+              onClick={() => strategy.available && handleStrategyChange(strategy.id)}
               disabled={!strategy.available}
               className={`
                 w-full text-left p-3 rounded-lg transition-all duration-200
@@ -278,5 +294,6 @@ export default function Sidebar({ selectedStrategy, onStrategyChange }) {
         </div>
       </div>
     </aside>
+    </>
   );
 }
