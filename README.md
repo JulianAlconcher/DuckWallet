@@ -24,3 +24,8 @@ DuckWallet es una aplicación informativa que muestra diariamente el Top 5 de CE
 ---
 
 Desarrollado con fines educativos y experimentales. Para más detalles, consulta la documentación interna del proyecto.
+
+<img width="1512" height="754" alt="image" src="https://github.com/user-attachments/assets/40912153-1974-48b7-9c02-b6cd00e7f670" />
+<img width="1493" height="766" alt="image" src="https://github.com/user-attachments/assets/26bfc9ba-f768-4bbe-b585-6adeac26c5d3" />
+<img width="1507" height="760" alt="image" src="https://github.com/user-attachments/assets/789cbd1e-0a12-4c2d-9b0e-ee649eab73dc" />
+
